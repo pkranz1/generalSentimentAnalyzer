@@ -6,6 +6,7 @@ const stopWord = require('stopword');
 
 const router = express.Router();
 const spellCorrector = new SpellCorrector();
+spellCorrector.loadDictionary();
 
 // captures the text from the user 
 router.post('/', (req, res, next) => {
@@ -29,7 +30,13 @@ router.post('/', (req, res, next) => {
   //removes but, a, or etc
   const filteredText = stopWord.removeStopwords(tokenizedText);
 
-  
+  const { SentimentAnalyzer, PorterStemmer } = natural;
+  const sentimentAnalyzer = new SentimentAnalyzer('English', PorterStemmer, 'afinn');
+  const sentimentAnalysis = sentimentAnalyzer.getSentiment(filteredText);
+
+  res.status(200).json({ sentimentAnalysis });
+
+  next();
 });
 
 module.exports = router; 
